@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">MoneySway</string>
+
+    <string name="login_phone_number_hint">Enter phone number</string>
+    <string name="login_password_hint">Enter password</string>
+    <string name="login_button_text">Sign In</string>
+    <string name="login_sign_up_text">New to MoneySway? Sign up now.</string>
+
+    <string name="sign_up_user_name_hint">Your name</string>
+    <string name="sign_up_phone_number_hint">Your phone number</string>
+    <string name="sign_up_password_hint">Your password</string>
+    <string name="sign_up_button_text">Sign Up</string>
+    <string name="sign_up_login_text">Already registered with MoneySway? Sign in now.</string>
+
 </resources>
