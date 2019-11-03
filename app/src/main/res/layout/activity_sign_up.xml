@@ -7,35 +7,12 @@
     tools:context=".SignUpActivity">
 
     <EditText
-        android:id="@+id/signUpNameEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="8dp"
-        android:autofillHints=""
-        android:background="@color/colorPrimaryLight"
-        android:ems="10"
-        android:hint="@string/sign_up_user_name_hint"
-        android:inputType="phone"
-        android:padding="16dp"
-        android:textColor="@color/colorPrimaryText"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/signUpPhoneNumberEditText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:targetApi="o" />
-
-    <EditText
         android:id="@+id/signUpPhoneNumberEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="200dp"
+        android:layout_marginStart="85dp"
+        android:layout_marginLeft="85dp"
+        android:layout_marginTop="156dp"
         android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
         android:autofillHints=""
@@ -47,30 +24,10 @@
         android:textColor="@color/colorPrimaryText"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:targetApi="o" />
-
-    <EditText
-        android:id="@+id/signUpPasswordEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@color/colorPrimaryLight"
-        android:ems="10"
-        android:hint="@string/sign_up_password_hint"
-        android:importantForAutofill="no"
-        android:inputType="textPassword"
-        android:padding="16dp"
-        android:textColor="@color/colorPrimaryText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signUpPhoneNumberEditText" />
 
     <Button
         android:id="@+id/signUpButton"
@@ -82,10 +39,31 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="15dp"
         android:background="@color/colorPrimaryDark"
+        android:onClick="onClickSignUpButton"
         android:text="@string/sign_up_button_text"
         android:textAllCaps="false"
         android:textColor="@color/colorText"
         android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/signInNowButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/signUpVerifyButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="15dp"
+        android:background="@color/colorPrimaryDark"
+        android:onClick="onClickSignUpVerifyButton"
+        android:text="@string/sign_up_verify_button_text"
+        android:textAllCaps="false"
+        android:textColor="@color/colorText"
+        android:textSize="18sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/signInNowButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -108,5 +86,43 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/signUpCountryCodeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="156dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:background="@color/colorPrimaryLight"
+        android:padding="16dp"
+        android:text="@string/sign_up_country_code"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/signUpPhoneNumberEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/signUpOtpEditText"
+        style="@style/Widget.AppCompat.EditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:ems="10"
+        android:hint="@string/sign_up_otp_hint"
+        android:importantForAutofill="no"
+        android:inputType="number"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUpPhoneNumberEditText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
