@@ -4,23 +4,23 @@ Software Engineering Project: Income/Expense Tracker and Budget Planner app
 ## Features
 (Priority: high to low)
 
- [x] Sign up and Sign in through phone number
- [ ] Tracking income and expenses
- [ ] Planning budgets
- [ ] Managing dues
- [ ] Managing goals
- [ ] Mini statements
- [ ] Statistics
- [ ] Colorful graphs
- [ ] Export reports
- [ ] Multiple filters option
- [ ] Financial calculators
- [ ] Calendar View
- [ ] Group accounts
- [ ] Multiple accounts
- [ ] Reminders
- [ ] Notifications
- [ ] Backups and restore
+- [x] Sign up and Sign in through phone number  
+- [ ] Tracking income and expenses  
+- [ ] Planning budgets  
+- [ ] Managing dues  
+- [ ] Managing goals  
+- [ ] Mini statements  
+- [ ] Statistics  
+- [ ] Colorful graphs  
+- [ ] Export reports  
+- [ ] Multiple filters option  
+- [ ] Financial calculators  
+- [ ] Calendar View  
+- [ ] Group accounts  
+- [ ] Multiple accounts  
+- [ ] Reminders  
+- [ ] Notifications  
+- [ ] Backups and restore   
 
 ## Getting Started
 
