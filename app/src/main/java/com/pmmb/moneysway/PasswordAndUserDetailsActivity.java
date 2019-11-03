@@ -40,13 +40,13 @@ public class PasswordAndUserDetailsActivity extends AppCompatActivity {
             phoneNumber = getIntent().getExtras().getString("phoneNumber");
             name = signUpUserNameEditText.getText().toString();
             password = signUpPasswordEditText.getText().toString();
-            if (name.length()<4) {
-                signUpUserNameEditText.setError("Enter name (atleast 6 characters)");
+            if (name.length()<3) {
+                signUpUserNameEditText.setError("Enter name (atleast 3 characters)");
             }
-            if (password.length()<4) {
-                signUpPasswordEditText.setError("Enter password (atleast 3 characters)");
+            if (password.length()<6) {
+                signUpPasswordEditText.setError("Enter password (atleast 6 characters)");
             }
-            if (name.length()>3 && password.length()>6) {
+            if (name.length()>=3 && password.length()>=6) {
                 mAuth.createUserWithEmailAndPassword(phoneNumber + "@" + getResources().getString(R.string.app_name).toLowerCase() + ".com", password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override

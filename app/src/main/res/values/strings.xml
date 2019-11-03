@@ -17,5 +17,6 @@
     <string name="sign_up_user_name_hint">Your name</string>
     <string name="sign_up_password_hint">Your password</string>
     <string name="sign_up_done_button_text">Done</string>
+    <string name="sign_out_button_text">Sign Out</string>
 
 </resources>
