@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_dashboard">
+
+    <fragment
+        android:id="@+id/nav_dashboard"
+        android:name="com.pmmb.moneysway.ui.dashboard.DashboardFragment"
+        android:label="@string/menu_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/nav_calendarView"
+        android:name="com.pmmb.moneysway.ui.calendarview.CalendarViewFragment"
+        android:label="@string/menu_calendar_view"
+        tools:layout="@layout/fragment_calendar_view" />
+
+    <fragment
+        android:id="@+id/nav_exportReports"
+        android:name="com.pmmb.moneysway.ui.exportreports.ExportReportsFragment"
+        android:label="@string/menu_export_reports"
+        tools:layout="@layout/fragment_export_reports" />
+
+    <fragment
+        android:id="@+id/nav_accounts"
+        android:name="com.pmmb.moneysway.ui.accounts.AccountsFragment"
+        android:label="@string/menu_accounts"
+        tools:layout="@layout/fragment_accounts" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.pmmb.moneysway.ui.profile.ProfileFragment"
+        android:label="@string/menu_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.pmmb.moneysway.ui.settings.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/nav_share"
+        android:name="com.pmmb.moneysway.ui.share.ShareFragment"
+        android:label="@string/menu_share"
+        tools:layout="@layout/fragment_share" />
+
+    <fragment
+        android:id="@+id/nav_feedback"
+        android:name="com.pmmb.moneysway.ui.feedback.FeedbackFragment"
+        android:label="@string/menu_feedback"
+        tools:layout="@layout/fragment_feedback" />
+
+    <fragment
+        android:id="@+id/nav_helpCenter"
+        android:name="com.pmmb.moneysway.ui.helpcenter.HelpCenterFragment"
+        android:label="@string/menu_help_center"
+        tools:layout="@layout/fragment_help_center" />
+
+    <fragment
+        android:id="@+id/nav_contact"
+        android:name="com.pmmb.moneysway.ui.contact.ContactFragment"
+        android:label="@string/menu_contact"
+        tools:layout="@layout/fragment_contact" />
+
+    <fragment
+        android:id="@+id/nav_sign_out"
+        android:name="com.pmmb.moneysway.ui.signout.SignOutFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_sign_out" />
+
+</navigation>

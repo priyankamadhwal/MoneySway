@@ -73,7 +73,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void onClickSignInNowButton(View view) {
-        startActivity(new Intent(SignUpActivity.this, MainActivity.class));
+        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
     }
 
     public void onClickSignUpButton(View view) {

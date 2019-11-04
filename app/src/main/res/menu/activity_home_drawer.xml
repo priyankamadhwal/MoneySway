@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_dashboard"
+            android:icon="@drawable/ic_menu_dashboard"
+            android:title="@string/menu_dashboard" />
+        <item
+            android:id="@+id/nav_calendarView"
+            android:icon="@drawable/ic_menu_calendar_view"
+            android:title="@string/menu_calendar_view" />
+        <item
+            android:id="@+id/nav_exportReports"
+            android:icon="@drawable/ic_menu_export_reports"
+            android:title="@string/menu_export_reports" />
+        <item
+            android:id="@+id/nav_accounts"
+            android:icon="@drawable/ic_menu_accounts"
+            android:title="@string/menu_accounts" />
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_menu_profile"
+            android:title="@string/menu_profile" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="@string/menu_settings" />
+    </group>
+
+    <item android:title="@string/menu_title_communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:title="@string/menu_share" />
+            <item
+                android:id="@+id/nav_feedback"
+                android:title="@string/menu_feedback" />
+            <item
+                android:id="@+id/nav_helpCenter"
+                android:title="@string/menu_help_center" />
+            <item
+                android:id="@+id/nav_contact"
+                android:title="@string/menu_contact" />
+        </menu>
+    </item>
+
+    <item android:title="@string/menu_title_sign_out">
+        <menu>
+            <item
+                android:id="@+id/nav_sign_out"
+                android:title="@string/menu_sign_out" />
+        </menu>
+    </item>
+
+
+</menu>
