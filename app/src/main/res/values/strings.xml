@@ -29,6 +29,7 @@
 
     <string name="menu_dashboard">Dashboard</string>
     <string name="menu_calendar_view">Calendar View</string>
+    <string name="menu_financial_calculators">Financial Calculators</string>
     <string name="menu_export_reports">Export Reports</string>
     <string name="menu_accounts">Accounts</string>
     <string name="menu_profile">Profile</string>
@@ -43,5 +44,12 @@
     <string name="menu_title_sign_out"> </string>
     <string name="menu_sign_out">Sign Out</string>
     <string name="signing_out">Signing out...</string>
+
+    <string name="title_activity_bottom">BottomActivity</string>
+    <string name="title_reports">Reports</string>
+    <string name="title_transactions">Transactions</string>
+    <string name="title_budgets">Budgets</string>
+    <string name="title_dues">Dues</string>
+    <string name="title_goals">Goals</string>
 
 </resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_reports"
+        android:icon="@drawable/ic_bottom_nav_reports"
+        android:title="@string/title_reports" />
+
+    <item
+        android:id="@+id/navigation_transactions"
+        android:icon="@drawable/ic_bottom_nav_transactions"
+        android:title="@string/title_transactions" />
+
+    <item
+        android:id="@+id/navigation_budgets"
+        android:icon="@drawable/ic_bottom_nav_budgets"
+        android:title="@string/title_budgets" />
+
+    <item
+        android:id="@+id/navigation_dues"
+        android:icon="@drawable/ic_bottom_nav_dues"
+        android:title="@string/title_dues" />
+
+    <item
+        android:id="@+id/navigation_goals"
+        android:icon="@drawable/ic_bottom_nav_goals"
+        android:title="@string/title_goals" />
+
+</menu>

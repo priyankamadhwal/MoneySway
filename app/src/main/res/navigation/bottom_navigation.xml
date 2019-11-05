@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_navigation"
+    app:startDestination="@+id/navigation_reports">
+
+    <fragment
+        android:id="@+id/navigation_reports"
+        android:name="com.pmmb.moneysway.ui.reports.ReportsFragment"
+        android:label="@string/title_reports"
+        tools:layout="@layout/fragment_reports" />
+
+    <fragment
+        android:id="@+id/navigation_transactions"
+        android:name="com.pmmb.moneysway.ui.transactions.TransactionsFragment"
+        android:label="@string/title_transactions"
+        tools:layout="@layout/fragment_transactions" />
+
+    <fragment
+        android:id="@+id/navigation_budgets"
+        android:name="com.pmmb.moneysway.ui.budgets.BudgetsFragment"
+        android:label="@string/title_budgets"
+        tools:layout="@layout/fragment_budgets" />
+
+    <fragment
+        android:id="@+id/navigation_dues"
+        android:name="com.pmmb.moneysway.ui.dues.DuesFragment"
+        android:label="@string/title_dues"
+        tools:layout="@layout/fragment_dues" />
+
+    <fragment
+        android:id="@+id/navigation_goals"
+        android:name="com.pmmb.moneysway.ui.goals.GoalsFragment"
+        android:label="@string/title_goals"
+        tools:layout="@layout/fragment_goals" />
+</navigation>

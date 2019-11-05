@@ -40,6 +40,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 }
             }
-        }, 2000L);
+        }, 1500L);
     }
 }

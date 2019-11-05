@@ -2,11 +2,11 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_dashboard">
+    android:id="@+id/mobile_navigation2"
+    app:startDestination="@+id/nav_dashboard2">
 
     <fragment
-        android:id="@+id/nav_dashboard"
+        android:id="@+id/nav_dashboard2"
         android:name="com.pmmb.moneysway.ui.dashboard.DashboardFragment"
         android:label="@string/menu_dashboard"
         tools:layout="@layout/fragment_dashboard" />
@@ -16,6 +16,12 @@
         android:name="com.pmmb.moneysway.ui.calendarview.CalendarViewFragment"
         android:label="@string/menu_calendar_view"
         tools:layout="@layout/fragment_calendar_view" />
+
+    <fragment
+        android:id="@+id/nav_financialCalculators"
+        android:name="com.pmmb.moneysway.ui.financialcalculators.FinancialCalculatorsFragment"
+        android:label="@string/menu_financial_calculators"
+        tools:layout="@layout/fragment_financial_calculators" />
 
     <fragment
         android:id="@+id/nav_exportReports"
