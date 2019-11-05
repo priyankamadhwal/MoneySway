@@ -13,12 +13,14 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.auth.SignInMethodQueryResult;
 
 
 public class SignUpActivity extends AppCompatActivity {
@@ -77,19 +79,29 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void onClickSignUpButton(View view) {
-        String phoneNumber = signUpPhoneNumberEditText.getText().toString();
-        if(phoneNumber.length() != 10){
-            Toast.makeText(SignUpActivity.this, "Invalid Phone Number Format!", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            String countryCode = signUpCountryCodeTextView.getText().toString();
-            PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                    countryCode + phoneNumber,            // Phone number to verify
-                    60,                                   // Timeout duration
-                    TimeUnit.SECONDS,                        // Unit of timeout
-                    this,                             // Activity (for callback binding)
-                    mCallbacks);                             // OnVerificationStateChangedCallbacks
-        }
+        final String phoneNumber = signUpPhoneNumberEditText.getText().toString();
+
+        // Check if user is already registered
+
+        mAuth
+                .fetchSignInMethodsForEmail(phoneNumber + "@" + getResources().getString(R.string.app_name).toLowerCase() + ".com")
+                .addOnCompleteListener( new OnCompleteListener<SignInMethodQueryResult>(){
+                    @Override
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                        boolean exist = !task.getResult().getSignInMethods().isEmpty();
+                        if(exist){
+                            Snackbar.make(findViewById(R.id.signUpParentLayout), "This phone number is already registered. Try signing in!", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                        }
+                        else{
+                            if (phoneNumber.length() != 10) {
+                                signUpPhoneNumberEditText.setError("Invalid Phone Number Format");
+                            } else {
+                                startVerification(phoneNumber);
+                            }
+                        }
+                    }
+                });
     }
 
     public void onClickSignUpVerifyButton(View view) {
@@ -136,5 +148,13 @@ public class SignUpActivity extends AppCompatActivity {
                 });
     }
 
-
+    private void startVerification(String phoneNumber) {
+        String countryCode = signUpCountryCodeTextView.getText().toString();
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                countryCode + phoneNumber,            // Phone number to verify
+                60,                                   // Timeout duration
+                TimeUnit.SECONDS,                        // Unit of timeout
+                this,                             // Activity (for callback binding)
+                mCallbacks);                             // OnVerificationStateChangedCallbacks
+    }
 }
