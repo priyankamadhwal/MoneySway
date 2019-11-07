@@ -14,12 +14,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.pmmb.moneysway.models.User;
 
 
 public class PasswordAndUserDetailsActivity extends AppCompatActivity {
 
     private EditText signUpUserNameEditText, signUpPasswordEditText;
     private FirebaseAuth mAuth;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +38,13 @@ public class PasswordAndUserDetailsActivity extends AppCompatActivity {
     }
 
     public void onClickDoneButton(View view) {
-        String phoneNumber, name, password;
+        final String phoneNumber, name, password;
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             phoneNumber = getIntent().getExtras().getString("phoneNumber");
             name = signUpUserNameEditText.getText().toString();
             password = signUpPasswordEditText.getText().toString();
+
             if (name.length()<3) {
                 signUpUserNameEditText.setError("Enter name (atleast 3 characters)");
             }
@@ -53,6 +58,7 @@ public class PasswordAndUserDetailsActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(getApplicationContext(), "Sign up successful!", Toast.LENGTH_LONG).show();
+                                    writeNewUser(task.getResult().getUser().getUid(), name, "extra");
                                     Intent intent = new Intent(PasswordAndUserDetailsActivity.this, HomeActivity.class);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
@@ -69,5 +75,12 @@ public class PasswordAndUserDetailsActivity extends AppCompatActivity {
         else {
             Toast.makeText(this, "Something went wrong! Please try again later", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void writeNewUser(String uid, String name, String xattr) {
+        user = new User(name, xattr);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference();
+        myRef.child("users").child(uid).setValue(user);
     }
 }
