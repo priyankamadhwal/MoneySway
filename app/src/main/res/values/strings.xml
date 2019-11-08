@@ -52,4 +52,16 @@
     <string name="title_dues">Dues</string>
     <string name="title_goals">Goals</string>
 
+    <string name="line"> </string>
+
+    <!-- Add transaction popup -->
+    <string name="text_view_add_transaction">Add Transaction</string>
+    <string name="radio_button_income_text">Income</string>
+    <string name="radio_button_expense_text">Expense</string>
+    <string name="edit_text_amount_hint">Amount</string>
+    <string name="edit_text_description_hint">Description</string>
+    <string name="image_view_memo_content_description">Memo</string>
+    <string name="button_add_transaction">Add</string>
+    <string name="button_cancel_transaction">Cancel</string>
+
 </resources>

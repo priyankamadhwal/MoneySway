@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark"
+    android:gravity="center_horizontal"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/text_view_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_view_add_transaction"
+        android:textColor="@color/colorPrimaryLight"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/text_view_transaction_line"
+        android:layout_width="260dp"
+        android:layout_height="1dp"
+        android:layout_below="@id/text_view_title"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorPrimaryLight"
+        android:text="@string/line" />
+
+    <EditText
+        android:id="@+id/edit_text_description"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text_amount"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorText"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="@string/edit_text_description_hint"
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine"
+        android:lines="3"
+        android:padding="8dp"
+        android:textColor="@color/colorPrimaryText" />
+
+    <RadioGroup
+        android:id="@+id/radio_group_transaction_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_transaction_line"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_button_income"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/radio_button_income_text"
+            android:textColor="@color/colorText"
+            android:textColorHint="@color/colorAccent"
+            android:textSize="18sp"
+            android:theme="@style/RadioButtonTheme" />
+
+        <RadioButton
+            android:id="@+id/radio_button_expense"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_button_expense_text"
+            android:textColor="@color/colorText"
+            android:textSize="18sp"
+            android:theme="@style/RadioButtonTheme" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/edit_text_amount"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/radio_group_transaction_type"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorText"
+        android:ems="10"
+        android:hint="@string/edit_text_amount_hint"
+        android:importantForAutofill="no"
+        android:inputType="numberDecimal"
+        android:padding="8dp"
+        android:textColor="@color/colorPrimaryText" />
+
+    <ImageView
+        android:id="@+id/image_view_memo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/radio_group_transaction_type"
+        android:layout_alignEnd="@id/edit_text_amount"
+        android:layout_alignRight="@id/edit_text_amount"
+        android:layout_centerHorizontal="false"
+        android:layout_marginTop="8dp"
+        android:clickable="true"
+        android:contentDescription="@string/image_view_memo_content_description"
+        android:focusable="true"
+        android:padding="8dp"
+        android:tint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_memo" />
+
+    <Spinner
+        android:id="@+id/spinner_categories"
+        style="@style/Widget.AppCompat.Spinner.Underlined"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text_description"
+        android:layout_marginTop="8dp"
+        android:theme="@style/SpinnerTheme" />
+
+    <Spinner
+        android:id="@+id/spinner_payment_methods"
+        style="@style/Widget.AppCompat.Spinner.Underlined"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinner_categories"
+        android:layout_marginTop="8dp"
+        android:theme="@style/SpinnerTheme" />
+
+    <Button
+        android:id="@+id/button_add_transaction"
+        android:layout_width="128dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinner_payment_methods"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorAccent"
+        android:text="@string/button_add_transaction"
+        android:textAllCaps="false"
+        android:textColor="@color/colorText" />
+
+    <Button
+        android:id="@+id/button_cancel_transaction"
+        android:layout_width="128dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinner_payment_methods"
+        android:layout_marginStart="132dp"
+        android:layout_marginLeft="132dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorSecondaryText"
+        android:text="@string/button_cancel_transaction"
+        android:textAllCaps="false"
+        android:textColor="@color/colorText" />
+
+</RelativeLayout>
