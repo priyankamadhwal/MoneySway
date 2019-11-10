@@ -1,11 +1,8 @@
 package com.pmmb.moneysway.ui.transactions;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -24,26 +21,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Registry;
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.AppGlideModule;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.FirebaseError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,14 +47,11 @@ import com.google.firebase.storage.UploadTask;
 import com.pmmb.moneysway.R;
 import com.pmmb.moneysway.models.Transaction;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -78,9 +65,9 @@ public class TransactionsFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private FirebaseRecyclerAdapter adapter;
     private Uri filePath;
-    FirebaseStorage storage;
-    StorageReference storageReference;
-    String imageId;
+    private String imagePath;
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
 
     private final int PICK_IMAGE_REQUEST = 7;
 
@@ -94,10 +81,11 @@ public class TransactionsFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
-        fetchTransactions();
-
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
         mRef = FirebaseDatabase.getInstance().getReference();
 
+        fetchTransactions();
 
         fab = root.findViewById(R.id.fab_transactions);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -107,14 +95,11 @@ public class TransactionsFragment extends Fragment {
             }
         });
 
-
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
-
         return root;
     }
 
     private void fetchTransactions() {
+
         Query query = FirebaseDatabase.getInstance()
                 .getReference()
                 .child("transactions");
@@ -125,23 +110,15 @@ public class TransactionsFragment extends Fragment {
                             @NonNull
                             @Override
                             public Transaction parseSnapshot(@NonNull DataSnapshot snapshot) {
-                                Date date = null;
-                                try {
-                                    SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
-                                    date = format.parse(snapshot.getKey().substring(1));
-                                }
-                                catch (ParseException e) {
-                                    Log.e("TransactionDateError", "Parse error", e);
-                                }
 
-                                SimpleDateFormat format = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
-                                String transaction_date = format.format(date);
+                                String transaction_date = changeDateFormat(snapshot.getKey(), "yyyyMMddHHmmssSSS", "MMM dd, yyyy hh:mm a");
 
-                                return new Transaction(transaction_date,
+                                return new Transaction(snapshot.getKey(),
+                                        transaction_date,
                                         snapshot.child("type").getValue().toString(),
                                         getResources().getString(R.string.currency) + " " + snapshot.child("amount").getValue().toString(),
                                         snapshot.child("description").getValue().toString(),
-                                        snapshot.getKey(),
+                                        snapshot.child("memo").getValue().toString(),
                                         "Category : " + snapshot.child("category").getValue().toString(),
                                         "Payment Method : " + snapshot.child("payment_method").getValue().toString());
                             }
@@ -157,48 +134,36 @@ public class TransactionsFragment extends Fragment {
                 return new ViewHolder(view);
             }
 
-
             @Override
-            protected void onBindViewHolder(ViewHolder holder, final int position,Transaction model) {
+            protected void onBindViewHolder(ViewHolder holder, final int position, final Transaction model) {
                 holder.setTransactionDate(model.getTimestamp());
                 holder.setTransactionType(model.getType());
                 holder.setTransactionAmount(model.getAmount());
                 holder.setTransactionDescription(model.getDescription());
                 holder.setTransactionCategory(model.getCategory());
                 holder.setTransactionPaymentMethod(model.getPayment_method());
-                holder.setTransactionMemo(model.getMemo());
+                holder.setTransactionMemo(model.getId());
 
                 holder.root.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //Toast.makeText(getActivity(), String.valueOf(position), Toast.LENGTH_SHORT).show();
-                        TextView transaction_item_date = view.findViewById(R.id.transaction_item_date);
-                        String string_date = transaction_item_date.getText().toString();
-                        Date date = null;
-                        try {
-                            SimpleDateFormat format = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
-                            date = format.parse(string_date);
+                        if (model.memo.equals("")) {
+                            adapter.getRef(position).removeValue();
+                        } else {
+                            storageReference.child("memos/" + model.id).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.i("DeleteMemoImage", "onSuccess: deleted file");
+                                    adapter.getRef(position).removeValue();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    Log.e("DeleteMemoImage", "onFailure: did not delete file", exception);
+                                    Toast.makeText(getActivity(), "Something went wrong. Try again later.", Toast.LENGTH_SHORT);
+                                }
+                            });
                         }
-                        catch (ParseException e) {
-                            Log.e("TransactionDateError", "Parse error", e);
-                        }
-
-                        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
-                        String image_id = "-" + format.format(date);
-                        adapter.getRef(position).removeValue();
-                        storageReference.child("memos/"+ image_id).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                // File deleted successfully
-                                Log.i("TransactionItemDelete", "onSuccess: deleted file");
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                // An error occurred!
-                                Log.i("TransactionItemDelete", "onFailure: did not delete file");
-                            }
-                        });
                     }
                 });
             }
@@ -208,6 +173,8 @@ public class TransactionsFragment extends Fragment {
     }
 
     private void showAddTransactionDialog() {
+
+        filePath = null;
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = this.getLayoutInflater();
@@ -246,34 +213,66 @@ public class TransactionsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (dialogView != null) {
-                RadioGroup radio_group_transaction_type = dialogView.findViewById(R.id.radio_group_transaction_type);
-                RadioButton selectedType = dialogView.findViewById(radio_group_transaction_type.getCheckedRadioButtonId());
-                EditText edit_text_amount = dialogView.findViewById(R.id.edit_text_amount);
-                EditText edit_text_description = dialogView.findViewById(R.id.edit_text_description);
-                Spinner spinner_categories = dialogView.findViewById(R.id.spinner_categories);
-                Spinner spinner_payment_methods = dialogView.findViewById(R.id.spinner_payment_methods);
+                final RadioGroup radio_group_transaction_type = dialogView.findViewById(R.id.radio_group_transaction_type);
+                final RadioButton selectedType = dialogView.findViewById(radio_group_transaction_type.getCheckedRadioButtonId());
+                final EditText edit_text_amount = dialogView.findViewById(R.id.edit_text_amount);
+                final EditText edit_text_description = dialogView.findViewById(R.id.edit_text_description);
+                final Spinner spinner_categories = dialogView.findViewById(R.id.spinner_categories);
+                final Spinner spinner_payment_methods = dialogView.findViewById(R.id.spinner_payment_methods);
+                final String current_timestamp = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault()).format(new Date());
+                final String type = selectedType.getText().toString();
+                final String amount = edit_text_amount.getText().toString();
+                final String description = edit_text_description.getText().toString();
+                final String category = spinner_categories.getSelectedItem().toString();
+                final String payment_method = spinner_payment_methods.getSelectedItem().toString();
 
-                String type = selectedType.getText().toString();
-                String amount = edit_text_amount.getText().toString();
-                String description = edit_text_description.getText().toString();
-                String memo = "img path";
-                String category = spinner_categories.getSelectedItem().toString();
-                String payment_method = spinner_payment_methods.getSelectedItem().toString();
-
-                String current_timestamp = "-" + new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(new Date());
-
-                Transaction newTransaction = new Transaction(type, amount, description, memo, category, payment_method);
-                mRef.child("transactions").child(current_timestamp).setValue(newTransaction);
-
-                imageId = current_timestamp;
-
-                uploadImage();
+                if(filePath != null)
+                {
+                    storageReference.child("memos/" + current_timestamp).putFile(filePath)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    String memo = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
+                                    uploadData(current_timestamp, type, amount, description, memo, category, payment_method);
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    uploadData(current_timestamp, type, amount, description, "", category, payment_method);
+                                    Toast.makeText(getActivity(), "Sorry! Failed to upload image.", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                }
+                            });
+                }
+                else
+                    uploadData(current_timestamp, type, amount, description, "", category, payment_method);
 
                 alertDialog.dismiss();
-                Toast.makeText(getActivity(), "Transaction added successfully", Toast.LENGTH_SHORT).show();
             }
         }
     };
+
+    private void uploadData(String id, String type, String amount, String description, String memo, String category, String payment_method) {
+
+        Transaction newTransaction = new Transaction(type, amount, description, memo, category, payment_method);
+        mRef.child("transactions").child(id).setValue(newTransaction).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getActivity(), "Transaction added successfully", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(), "Sorry! Something went wrong.", Toast.LENGTH_SHORT).show();
+                Log.e("UploadDataFailure", "error", e);
+            }
+        });
+    }
 
     private View.OnClickListener buttonCancelTransactionOnClickListener = new View.OnClickListener() {
         @Override
@@ -374,31 +373,6 @@ public class TransactionsFragment extends Fragment {
         }
     }
 
-    private void uploadImage() {
-
-        if(filePath != null)
-        {
-            StorageReference ref = storageReference.child("memos/"+ imageId);
-            ref.putFile(filePath)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Sorry! Failed to upload image.", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        }
-                    });
-        }
-    }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
         public LinearLayout root;
         public TextView transaction_item_date;
@@ -454,6 +428,24 @@ public class TransactionsFragment extends Fragment {
                    .centerCrop()
                    .placeholder(R.drawable.placeholder_img_memo)
                    .into(transaction_item_memo);
+        }
+    }
+
+    private String changeDateFormat (String old_date, String old_format, String new_format) {
+        try {
+            Date date = null;
+            try {
+                SimpleDateFormat format = new SimpleDateFormat(old_format, Locale.getDefault());
+                date = format.parse(old_date);
+            } catch (ParseException e) {
+                Log.e("TransactionDateError", "Parse error", e);
+            }
+            SimpleDateFormat format = new SimpleDateFormat(new_format, Locale.getDefault());
+            return (format.format(date));
+        }
+        catch (NullPointerException e) {
+            Log.e("changeDateFormat", "null pointer", e);
+            return "";
         }
     }
 

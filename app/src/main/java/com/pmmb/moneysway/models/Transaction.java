@@ -5,6 +5,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 @IgnoreExtraProperties
 public class Transaction {
 
+    public String id;
     public String timestamp;
     public String type;
     public String amount;
@@ -26,7 +27,8 @@ public class Transaction {
         this.payment_method = payment_method;
     }
 
-    public Transaction(String timestamp, String type, String amount, String description, String memo, String category, String payment_method) {
+    public Transaction(String id, String timestamp, String type, String amount, String description, String memo, String category, String payment_method) {
+        this.id = id;
         this.timestamp = timestamp;
         this.type = type;
         this.amount = amount;
@@ -34,6 +36,14 @@ public class Transaction {
         this.memo = memo;
         this.category = category;
         this.payment_method = payment_method;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String timestamp) {
+        this.id = id;
     }
 
     public String getTimestamp() {
