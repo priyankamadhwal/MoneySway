@@ -18,6 +18,16 @@ public class Transaction {
         // Default constructor required for calls to DataSnapshot.getValue(Transaction.class)
     }
 
+    public Transaction(int reqId) {
+        // Default constructor for alert dialog
+        this.type = "income";
+        this.amount = "";
+        this.description = "";
+        this.memo = "";
+        this.category = "Category : Select a category";
+        this.payment_method = "Payment Method : Select a payment method";
+    }
+
     public Transaction(String type, String amount, String description, String memo, String category, String payment_method) {
         this.type = type;
         this.amount = amount;

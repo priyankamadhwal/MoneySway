@@ -1,5 +1,6 @@
 package com.pmmb.moneysway.ui.transactions;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,13 +28,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.FirebaseError;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -65,9 +67,27 @@ public class TransactionsFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private FirebaseRecyclerAdapter adapter;
     private Uri filePath;
-    private String imagePath;
     private FirebaseStorage storage;
     private StorageReference storageReference;
+
+    private TextView text_view_transaction_title;
+    private RadioGroup radio_group_transaction_type;
+    private RadioButton radio_button_income;
+    private RadioButton radio_button_expense;
+    private EditText edit_text_amount;
+    private ImageView image_view_memo;
+    private EditText edit_text_description;
+    private Spinner spinner_categories;
+    private Spinner spinner_payment_methods;
+    private Button button_add_transaction;
+    private Button button_cancel_transaction;
+
+    private String selectedCategory = null;
+    private String selectedPaymentMethod = null;
+    private Transaction selectedModel = null;
+    private int selectedModelPosition = -1;
+
+    private ProgressDialog progressDialog;
 
     private final int PICK_IMAGE_REQUEST = 7;
 
@@ -91,9 +111,16 @@ public class TransactionsFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showAddTransactionDialog();
+                showTransactionDialog("Add New Transaction",
+                        new Transaction(1), "Add", "Cancel");
             }
         });
+
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Wait for a few minutes...");
+        progressDialog.setTitle("In progress");
+        progressDialog.setIndeterminate(false);
+        progressDialog.setCancelable(true);
 
         return root;
     }
@@ -147,23 +174,10 @@ public class TransactionsFragment extends Fragment {
                 holder.root.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (model.memo.equals("")) {
-                            adapter.getRef(position).removeValue();
-                        } else {
-                            storageReference.child("memos/" + model.id).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.i("DeleteMemoImage", "onSuccess: deleted file");
-                                    adapter.getRef(position).removeValue();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                    Log.e("DeleteMemoImage", "onFailure: did not delete file", exception);
-                                    Toast.makeText(getActivity(), "Something went wrong. Try again later.", Toast.LENGTH_SHORT);
-                                }
-                            });
-                        }
+                        selectedModel = model;
+                        selectedModelPosition = position;
+                        showTransactionDialog(model.getTimestamp(),
+                                model, "Update", "Delete");
                     }
                 });
             }
@@ -172,7 +186,57 @@ public class TransactionsFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    private void showAddTransactionDialog() {
+    private void initializeDialogComponents() {
+        text_view_transaction_title = dialogView.findViewById(R.id.text_view_transaction_title);
+        radio_group_transaction_type = dialogView.findViewById(R.id.radio_group_transaction_type);
+        radio_button_income = dialogView.findViewById(R.id.radio_button_income);
+        radio_button_expense = dialogView.findViewById(R.id.radio_button_expense);
+        edit_text_amount = dialogView.findViewById(R.id.edit_text_amount);
+        image_view_memo = dialogView.findViewById(R.id.image_view_memo);
+        edit_text_description = dialogView.findViewById(R.id.edit_text_description);
+        spinner_categories = dialogView.findViewById(R.id.spinner_categories);
+        spinner_payment_methods = dialogView.findViewById(R.id.spinner_payment_methods);
+        button_add_transaction = dialogView.findViewById(R.id.button_add_transaction);
+        button_cancel_transaction = dialogView.findViewById(R.id.button_cancel_transaction);
+    }
+
+    private void setDialogComponents(String title, Transaction transactionModel, String buttonAddText, String buttonCancelText) {
+
+        text_view_transaction_title.setText(title);
+        radio_group_transaction_type.clearCheck();
+        String amount = transactionModel.getAmount();
+        if (!amount.equals(""))
+            amount = amount.substring(2);
+        edit_text_amount.setText(amount);
+        edit_text_description.setText(transactionModel.getDescription());
+        selectedCategory = transactionModel.getCategory().substring(11);
+        spinner_categories.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, new String[] {selectedCategory}));
+        selectedPaymentMethod = transactionModel.getPayment_method().substring(17);
+        spinner_payment_methods.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, new String[] {selectedPaymentMethod}));
+        button_add_transaction.setText(buttonAddText);
+        button_cancel_transaction.setText(buttonCancelText);
+
+        if (title.toLowerCase().equals("add new transaction")) {
+            button_add_transaction.setOnClickListener(buttonAddTransactionOnClickListener);
+            button_cancel_transaction.setOnClickListener(buttonCancelTransactionOnClickListener);
+        }
+        else {
+            button_add_transaction.setOnClickListener(buttonUpdateTransactionOnClickListener);
+            button_cancel_transaction.setOnClickListener(buttonRemoveTransactionOnClickListener);
+        }
+        spinner_categories.setOnItemSelectedListener(spinnerOnItemSelectedListener);
+        spinner_payment_methods.setOnItemSelectedListener(spinnerOnItemSelectedListener);
+        radio_group_transaction_type.setOnCheckedChangeListener(radioGroupTransactionTypeOnCheckedChangeListener);
+        mRef.child("payment_methods").addListenerForSingleValueEvent(paymentMethodsValueEventListener);
+        image_view_memo.setOnClickListener(imageViewMemoOnClickListener);
+
+        if (transactionModel.getType().toLowerCase().equals("income"))
+            radio_group_transaction_type.check(R.id.radio_button_income);
+        else
+            radio_group_transaction_type.check(R.id.radio_button_expense);
+    }
+
+    private void showTransactionDialog(String title, Transaction transactionModel, String buttonAddText, String buttonCancelText) {
 
         filePath = null;
 
@@ -187,72 +251,110 @@ public class TransactionsFragment extends Fragment {
         alertDialog.show();
         alertDialog.getWindow().setLayout((int)(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 350, getResources().getDisplayMetrics())), WindowManager.LayoutParams.WRAP_CONTENT);
 
-        final Button button_add_transaction = dialogView.findViewById(R.id.button_add_transaction);
-        final Button button_cancel_transaction = dialogView.findViewById(R.id.button_cancel_transaction);
-        final RadioGroup radio_group_transaction_type = dialogView.findViewById(R.id.radio_group_transaction_type);
-        final Spinner spinner_categories = dialogView.findViewById(R.id.spinner_categories);
-        final Spinner spinner_payment_methods = dialogView.findViewById(R.id.spinner_payment_methods);
-        final ImageView image_view_memo = dialogView.findViewById(R.id.image_view_memo);
+        initializeDialogComponents();
 
-        radio_group_transaction_type.clearCheck();
-        spinner_categories.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, new String[] {"Select a category"}));
-        spinner_payment_methods.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, new String[] {"Select a payment method"}));
+        setDialogComponents(title, transactionModel, buttonAddText, buttonCancelText);
+    }
 
-        button_add_transaction.setOnClickListener(buttonAddTransactionOnClickListener);
-        button_cancel_transaction.setOnClickListener(buttonCancelTransactionOnClickListener);
-        spinner_categories.setOnItemSelectedListener(spinnerOnItemSelectedListener);
-        spinner_payment_methods.setOnItemSelectedListener(spinnerOnItemSelectedListener);
-        radio_group_transaction_type.setOnCheckedChangeListener(radioGroupTransactionTypeOnCheckedChangeListener);
-        mRef.child("payment_methods").addListenerForSingleValueEvent(paymentMethodsValueEventListener);
-        image_view_memo.setOnClickListener(imageViewMemoOnClickListener);
+    private void captureTransactionDialog() {
 
-        radio_group_transaction_type.check(R.id.radio_button_income);
+        RadioButton selectedType = dialogView.findViewById(radio_group_transaction_type.getCheckedRadioButtonId());
+        final String type = selectedType.getText().toString();
+        final String amount = edit_text_amount.getText().toString();
+        final String description = edit_text_description.getText().toString();
+        final String category = spinner_categories.getSelectedItem().toString();
+        final String payment_method = spinner_payment_methods.getSelectedItem().toString();
+
+        String t_id = "";
+
+        if (selectedModel == null)
+            t_id = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault()).format(new Date());
+        else
+            t_id = selectedModel.getId();
+
+        final String transaction_id = t_id;
+
+        if(filePath != null)
+        {
+            storageReference.child("memos/" + transaction_id).putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            String memo = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
+                            uploadData(transaction_id, type, amount, description, memo, category, payment_method);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            uploadData(transaction_id, type, amount, description, "", category, payment_method);
+                            Toast.makeText(getActivity(), "Sorry! Failed to upload image.", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        }
+                    });
+        }
+        else
+            uploadData(transaction_id, type, amount, description, "", category, payment_method);
     }
 
     private View.OnClickListener buttonAddTransactionOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (dialogView != null) {
-                final RadioGroup radio_group_transaction_type = dialogView.findViewById(R.id.radio_group_transaction_type);
-                final RadioButton selectedType = dialogView.findViewById(radio_group_transaction_type.getCheckedRadioButtonId());
-                final EditText edit_text_amount = dialogView.findViewById(R.id.edit_text_amount);
-                final EditText edit_text_description = dialogView.findViewById(R.id.edit_text_description);
-                final Spinner spinner_categories = dialogView.findViewById(R.id.spinner_categories);
-                final Spinner spinner_payment_methods = dialogView.findViewById(R.id.spinner_payment_methods);
-                final String current_timestamp = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault()).format(new Date());
-                final String type = selectedType.getText().toString();
-                final String amount = edit_text_amount.getText().toString();
-                final String description = edit_text_description.getText().toString();
-                final String category = spinner_categories.getSelectedItem().toString();
-                final String payment_method = spinner_payment_methods.getSelectedItem().toString();
+            progressDialog.show();
+            captureTransactionDialog();
+        }
+    };
 
-                if(filePath != null)
-                {
-                    storageReference.child("memos/" + current_timestamp).putFile(filePath)
-                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    String memo = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
-                                    uploadData(current_timestamp, type, amount, description, memo, category, payment_method);
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    uploadData(current_timestamp, type, amount, description, "", category, payment_method);
-                                    Toast.makeText(getActivity(), "Sorry! Failed to upload image.", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                }
-                            });
+
+    private View.OnClickListener buttonCancelTransactionOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            dismissTransactionDialog();
+        }
+    };
+
+
+    private View.OnClickListener buttonUpdateTransactionOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            if (selectedModel != null && selectedModelPosition != -1) {
+                progressDialog.show();
+                captureTransactionDialog();
+            }
+        }
+    };
+
+    private View.OnClickListener buttonRemoveTransactionOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (selectedModel != null && selectedModelPosition != -1) {
+                progressDialog.show();
+                if (selectedModel.memo.equals("")) {
+                    adapter.getRef(selectedModelPosition).removeValue();
+                    dismissTransactionDialog();
+                } else {
+                    storageReference.child("memos/" + selectedModel.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.i("DeleteMemoImage", "onSuccess: deleted file");
+                            adapter.getRef(selectedModelPosition).removeValue();
+                            Toast.makeText(getActivity(), "Transaction deleted successfullly", Toast.LENGTH_SHORT).show();
+                            dismissTransactionDialog();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Log.e("DeleteMemoImage", "onFailure: did not delete file", exception);
+                            Toast.makeText(getActivity(), "Something went wrong. Try again later.", Toast.LENGTH_SHORT).show();
+                            dismissTransactionDialog();
+                        }
+                    });
                 }
-                else
-                    uploadData(current_timestamp, type, amount, description, "", category, payment_method);
-
-                alertDialog.dismiss();
             }
         }
     };
@@ -263,7 +365,12 @@ public class TransactionsFragment extends Fragment {
         mRef.child("transactions").child(id).setValue(newTransaction).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(getActivity(), "Transaction added successfully", Toast.LENGTH_SHORT).show();
+                String msg="";
+                if (selectedModel != null)
+                    msg = "Transaction updated successfully";
+                else
+                    msg = "Transaction added successfully";
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -272,14 +379,9 @@ public class TransactionsFragment extends Fragment {
                 Log.e("UploadDataFailure", "error", e);
             }
         });
-    }
 
-    private View.OnClickListener buttonCancelTransactionOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            alertDialog.dismiss();
-        }
-    };
+        dismissTransactionDialog();
+    }
 
     private AdapterView.OnItemSelectedListener spinnerOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -320,6 +422,13 @@ public class TransactionsFragment extends Fragment {
                         final Spinner spinner_categories = dialogView.findViewById(R.id.spinner_categories);
                         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, categories.toArray(new String[categories.size()]));
                         spinner_categories.setAdapter(adapter);
+
+                        if (selectedCategory != null) {
+                            int spinnerPosition = adapter.getPosition(selectedCategory);
+                            if (spinnerPosition < 0)
+                                spinnerPosition = 0;
+                            spinner_categories.setSelection(spinnerPosition);
+                        }
                     }
                 }
 
@@ -345,6 +454,11 @@ public class TransactionsFragment extends Fragment {
                 final Spinner spinner_payment_methods = dialogView.findViewById(R.id.spinner_payment_methods);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, payment_methods.toArray(new String[payment_methods.size()]));
                 spinner_payment_methods.setAdapter(adapter);
+
+                if (selectedPaymentMethod != null) {
+                    int spinnerPosition = adapter.getPosition(selectedPaymentMethod);
+                    spinner_payment_methods.setSelection(spinnerPosition);
+                }
             }
         }
 
@@ -427,6 +541,8 @@ public class TransactionsFragment extends Fragment {
                    .load( storageReference.child("memos/"+ string))
                    .centerCrop()
                    .placeholder(R.drawable.placeholder_img_memo)
+                   .apply(RequestOptions.skipMemoryCacheOf(true))
+                   .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
                    .into(transaction_item_memo);
         }
     }
@@ -447,6 +563,16 @@ public class TransactionsFragment extends Fragment {
             Log.e("changeDateFormat", "null pointer", e);
             return "";
         }
+    }
+
+    private void dismissTransactionDialog() {
+        filePath = null;
+        selectedCategory = null;
+        selectedPaymentMethod = null;
+        selectedModel = null;
+        selectedModelPosition = -1;
+        alertDialog.dismiss();
+        progressDialog.dismiss();
     }
 
     @Override
