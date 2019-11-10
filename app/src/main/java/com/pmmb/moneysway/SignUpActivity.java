@@ -127,6 +127,7 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            FirebaseAuth.getInstance().signOut();
                             Toast.makeText(SignUpActivity.this, "Verification successful!", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(SignUpActivity.this, PasswordAndUserDetailsActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

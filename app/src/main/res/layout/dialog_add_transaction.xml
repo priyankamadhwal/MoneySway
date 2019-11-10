@@ -52,7 +52,6 @@
             android:id="@+id/radio_button_income"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:checked="true"
             android:text="@string/radio_button_income_text"
             android:textColor="@color/colorText"
             android:textColorHint="@color/colorAccent"

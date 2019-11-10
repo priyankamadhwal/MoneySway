@@ -3,6 +3,8 @@
 
     <string name="temp">WELCOME!</string>
 
+    <string name="currency">\u20B9</string>
+
     <string name="login_phone_number_hint">Enter phone number</string>
     <string name="login_password_hint">Enter password</string>
     <string name="login_button_text">Sign In</string>
@@ -63,5 +65,17 @@
     <string name="image_view_memo_content_description">Memo</string>
     <string name="button_add_transaction">Add</string>
     <string name="button_cancel_transaction">Cancel</string>
+
+    <!-- Transaction list item -->
+    <string name="transaction_loading_text">Loading all transactions...</string>
+    <string name="transaction_item_date">dd/mm/yyyy hh:ss</string>
+    <string name="transaction_item_memo_content_description">Memo</string>
+    <string name="transaction_item_type">Type</string>
+    <string name="transaction_item_amount">Rs. 500.00</string>
+    <string name="transaction_item_description">Description here.</string>
+    <string name="transaction_item_category">Category: </string>
+    <string name="transaction_item_payment_method">Payment Method: </string>
+    <string name="transaction_item_remove_content_description">Remove</string>
+    <string name="transaction_item_edit_content_description">Edit</string>
 
 </resources>
