@@ -5,7 +5,7 @@ Software Engineering Project: Income/Expense Tracker and Budget Planner app
 (Priority: high to low)
 
 - [x] Sign up (with OTP verification) and Sign in with phone number + password  
-- [x] Tracking income and expenses 
+- [x] Tracking incomes and expenses 
 - [ ] Planning budgets :construction:  
 - [ ] Managing dues :construction:  
 - [ ] Managing goals  
