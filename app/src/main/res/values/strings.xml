@@ -78,4 +78,22 @@
     <string name="transaction_item_remove_content_description">Remove</string>
     <string name="transaction_item_edit_content_description">Edit</string>
 
+
+    <!-- Reports -->
+    <string name="report_range_daily">Daily</string>
+    <string name="report_range_weekly">Weekly</string>
+    <string name="report_range_monthly">Monthly</string>
+    <string name="report_range_yearly">Yearly</string>
+    <string name="report_range_total">Total</string>
+    <string name="report_range_custom">Custom</string>
+    <string name="income_string">Income</string>
+    <string name="total_income">\u20B9 30000</string>
+    <string name="expense_string">Expenses</string>
+    <string name="total_expense">\u20B9 14000</string>
+    <string name="balance_string">Balance</string>
+    <string name="total_balance">\u20B9 16000</string>
+    <string name="income_categories_string">Income Categories : </string>
+    <string name="expense_categories_string">Expense Categories : </string>
+    <string name="amount_default">\u20B9 0.0</string>
+
 </resources>
