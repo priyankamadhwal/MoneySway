@@ -38,6 +38,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.2.0'
     implementation 'com.google.firebase:firebase-storage:19.1.0'
     implementation 'com.firebaseui:firebase-ui-database:6.0.2'
+    implementation 'com.google.firebase:firebase-core:17.2.1'
+    implementation 'com.firebase:firebase-client-android:2.5.0'
     implementation 'com.firebaseui:firebase-ui-storage:3.2.1'
     implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
     testImplementation 'junit:junit:4.12'
